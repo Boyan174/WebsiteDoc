@@ -133,7 +133,7 @@ async def stream_analysis_progress(url: str):
 
         # Step 1: Scrape website
         await asyncio.sleep(0.1) # give time for first message to be sent
-        async for update in send_progress("Scraping website content...", "Scraping"):
+        async for update in send_progress("Taking Screenshot and Structure of your website...", "Scraping Website"):
             yield update
         
         print(f"STREAM_PY: Scraping URL: {url}")
@@ -170,7 +170,7 @@ async def stream_analysis_progress(url: str):
         # Step 2: Analyze accessibility (Langchain service)
         # This is a single call, but Langchain itself has sub-steps. We'll treat it as one major step here for simplicity.
         # For more granular updates from Langchain, Langchain service would need to be a generator too.
-        async for update in send_progress("Analyzing accessibility with AI...", "AI Analysis"):
+        async for update in send_progress("Accessibility is beeing analyzed carefully...", "AI Analysis"):
             yield update
         
         print("STREAM_PY: Calling analyze_accessibility...")

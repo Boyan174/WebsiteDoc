@@ -1,13 +1,52 @@
 from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.output_parser import StrOutputParser
 import base64
 import os
 from dotenv import load_dotenv
+from typing import Optional
 
 load_dotenv()
 
-llm = ChatOpenAI(model="gpt-4o", max_tokens=1024, api_key=os.getenv("OPENAI_API_KEY"))
+# Configuration for model selection
+MODEL_PROVIDER = os.getenv("MODEL_PROVIDER", "openai").lower()  # "openai" or "anthropic"
+
+def get_llm(provider: Optional[str] = None, model: Optional[str] = None):
+    """
+    Factory function to get the appropriate LLM based on provider.
+    
+    Args:
+        provider: "openai" or "anthropic" (defaults to MODEL_PROVIDER env var)
+        model: Specific model name (defaults to recommended model for each provider)
+        temperature: Temperature for generation (default: 0)
+        max_tokens: Maximum tokens to generate (default: 1024)
+    
+    Returns:
+        LLM instance (ChatOpenAI or ChatAnthropic)
+    """
+    if provider is None:
+        provider = MODEL_PROVIDER
+    
+    if provider == "anthropic":
+        if model is None:
+            model = os.getenv("ANTHROPIC_MODEL")
+        
+        return ChatAnthropic(
+            model=model,
+            api_key=os.getenv("ANTHROPIC_API_KEY")
+        )
+    else:  # Default to OpenAI
+        if model is None:
+            model = os.getenv("OPENAI_MODEL", "gpt-4o")
+        
+        return ChatOpenAI(
+            model=model,
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
+
+# Initialize the default LLM
+llm = get_llm("anthropic", "claude-3-5-sonnet-20241022")
 
 def analyze_accessibility(html: str, screenshot_base64: str) -> dict:
     """
@@ -97,10 +136,14 @@ def analyze_accessibility(html: str, screenshot_base64: str) -> dict:
             print("LANGCHAIN_SERVICE_ERROR: Screenshot data is missing or empty.")
             screenshot_feedback = "Screenshot data was not provided or was invalid."
         else:
-            screenshot_analysis_prompt = ChatPromptTemplate.from_messages([
-                ("user", [
-                    {"type": "text", "text": """
-**Your Role:** You are an expert UI/UX Accessibility Analyst. Your task is to perform a visual accessibility audit of the provided webpage screenshot based on key visual design and accessibility principles from WCAG.
+            # For Claude API, we need to use HumanMessage with proper content structure
+            from langchain_core.messages import HumanMessage
+            
+            screenshot_message = HumanMessage(
+                content=[
+                    {
+                        "type": "text",
+                        "text": """**Your Role:** You are an expert UI/UX Accessibility Analyst. Your task is to perform a visual accessibility audit of the provided webpage screenshot based on key visual design and accessibility principles from WCAG.
 
 **Your Goal:** Identify visual design choices that negatively impact accessibility for users with visual impairments, motor difficulties, or cognitive disabilities. Provide clear, actionable feedback to help a designer or developer address these issues.
 
@@ -149,13 +192,21 @@ For each guideline where you find an issue, provide the following:
 
 If no issues are found for a guideline, simply state: "No significant issues found."
 
-Begin your analysis now.
-"""},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{screenshot_base64}"}}
-                ])
-            ])
-            screenshot_chain = screenshot_analysis_prompt | llm | StrOutputParser()
-            screenshot_feedback = screenshot_chain.invoke({})
+Begin your analysis now."""
+                    },
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/png",
+                            "data": screenshot_base64
+                        }
+                    }
+                ]
+            )
+            
+            # Invoke the LLM with the message
+            screenshot_feedback = llm.invoke([screenshot_message]).content
         print(f"LANGCHAIN_SERVICE: Screenshot analysis feedback received: {screenshot_feedback[:100]}...")
 
         # 3. Aggregated Report and Scoring
