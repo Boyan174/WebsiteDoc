@@ -1,0 +1,53 @@
+# Backend Python
+accessibility-analyzer-backend/__pycache__/
+accessibility-analyzer-backend/*.py[cod]
+accessibility-analyzer-backend/*$py.class
+accessibility-analyzer-backend/.env
+accessibility-analyzer-backend/venv/
+accessibility-analyzer-backend/env/
+accessibility-analyzer-backend/.venv/
+accessibility-analyzer-backend/.env/
+accessibility-analyzer-backend/*.log
+accessibility-analyzer-backend/.pytest_cache/
+accessibility-analyzer-backend/.coverage
+accessibility-analyzer-backend/htmlcov/
+accessibility-analyzer-backend/dist/
+accessibility-analyzer-backend/*.egg-info/
+accessibility-analyzer-backend/.mypy_cache/
+accessibility-analyzer-backend/.ruff_cache/
+
+# Frontend Node
+accessibility-analyzer-frontend/node_modules/
+accessibility-analyzer-frontend/.pnp
+accessibility-analyzer-frontend/.pnp.js
+accessibility-analyzer-frontend/coverage/
+accessibility-analyzer-frontend/.next/
+accessibility-analyzer-frontend/out/
+accessibility-analyzer-frontend/build/
+accessibility-analyzer-frontend/.DS_Store
+accessibility-analyzer-frontend/*.pem
+accessibility-analyzer-frontend/npm-debug.log*
+accessibility-analyzer-frontend/yarn-debug.log*
+accessibility-analyzer-frontend/yarn-error.log*
+accessibility-analyzer-frontend/.env.local
+accessibility-analyzer-frontend/.env.development.local
+accessibility-analyzer-frontend/.env.test.local
+accessibility-analyzer-frontend/.env.production.local
+accessibility-analyzer-frontend/.vercel
+accessibility-analyzer-frontend/*.tsbuildinfo
+accessibility-analyzer-frontend/next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+.cache/
