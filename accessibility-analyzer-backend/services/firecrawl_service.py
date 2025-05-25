@@ -24,21 +24,23 @@ async def scrape_website(url: str):
         html_content = None
         screenshot_data_for_langchain = None # This should be base64
 
+        # Try to get HTML content, prioritizing 'html', then 'rawHtml'
         if hasattr(response, 'html') and response.html:
             html_content = response.html
-            if isinstance(html_content, dict): # If response.html is a dict like {'content': '...'}
-                 html_content = html_content.get('content', html_content.get('html', str(html_content)))
-        elif hasattr(response, 'data') and isinstance(response.data, dict) and response.data.get('html'):
-            html_content = response.data['html']
-            if isinstance(html_content, dict):
-                 html_content = html_content.get('content', html_content.get('html', str(html_content)))
-        elif isinstance(response, dict) and response.get('html'): # If ScrapeResponse acts like a dict
-            html_content = response['html']
-            if isinstance(html_content, dict):
-                 html_content = html_content.get('content', html_content.get('html', str(html_content)))
-        else:
-            print(f"DEV_NOTE: Could not extract HTML from Firecrawl ScrapeResponse. Object: {vars(response) if hasattr(response, '__dict__') else response}")
-            
+        elif hasattr(response, 'rawHtml') and response.rawHtml: # Check for rawHtml
+            html_content = response.rawHtml
+        elif hasattr(response, 'data') and isinstance(response.data, dict):
+            html_content = response.data.get('html') or response.data.get('rawHtml')
+        elif isinstance(response, dict): # If ScrapeResponse acts like a dict
+            html_content = response.get('html') or response.get('rawHtml')
+
+        # If html_content is a dict (e.g. from some nested structure), try to get 'content' or 'html' key
+        if isinstance(html_content, dict):
+            html_content = html_content.get('content', html_content.get('html', str(html_content)))
+        
+        if not html_content:
+            print(f"DEV_NOTE: Could not extract HTML using 'html' or 'rawHtml' from Firecrawl ScrapeResponse. Object: {vars(response) if hasattr(response, '__dict__') else response}")
+
         screenshot_url = None
         if hasattr(response, 'screenshot') and response.screenshot:
             screenshot_url = response.screenshot

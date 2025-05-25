@@ -173,6 +173,43 @@
   color: var(--text-secondary);
 }
 
+.progress-bar-wrapper {
+  width: 80%;
+  max-width: 400px;
+  margin: 15px auto 0; /* Center the wrapper horizontally */
+  position: relative;
+}
+
+.progress-bar-container {
+  width: 100%;
+  background-color: #e0e0e0; /* Light grey background for the container */
+  border-radius: 4px;
+  overflow: hidden; /* Ensures the inner bar respects the border radius */
+  height: 20px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--primary-color); /* Use primary color for the bar */
+  width: 0%; /* Initial width */
+  border-radius: 4px; /* Match container's border radius */
+  transition: width 0.3s ease-in-out; /* Smooth transition for width changes */
+}
+
+.progress-percentage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  color: var(--text-primary);
+  font-size: 0.8em;
+  font-weight: 600;
+  pointer-events: none; /* Prevent interference with other elements */
+}
+
 /* Error State */
 .error-container {
   background: #fef2f2;
